@@ -10,14 +10,16 @@ class HAREncodable(MutableMapping):
     """
         Base class that allows for recursive HAR structures using HAR as map.
     """
-    __required__ = []
+    __required__ = {}
+    __optional__ = {}
 
     def __init__(self, *args, **kwargs):
         """
             Initialize the private dict that is used to actually store the information.
             Fills it with the content given in args/kwargs then checks against
             __required__ for missing mandatory fields.
-            If no parameters are given no checks will be done for convenience.
+
+            Important: If no parameters are given no checks will be done for convenience.
         """
         self.__dict__ = {}
 

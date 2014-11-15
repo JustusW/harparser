@@ -11,6 +11,10 @@ Installation is straight forward:
     cd harparser
     python setup.py install
 
+or if you don't want the code locally:
+
+    pip install -e git://github.com/JustusW/harparser.git#egg=harparser
+
 Usage
 =====
 If you just want to read and write HARs usage is simple:

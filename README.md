@@ -67,7 +67,7 @@ Obviously the real magic starts once you overwrite or inherit from the very basi
 
 Advanced Usage
 ==============
-Internally HAR is only an instance of the private class _HAR. The __init__ method instantiates all keys defined in the private attribute __map__ as classes extending HAREncodable. By default all changes to HAR will be shared globally. If you want to make changes without exposing them like that you have two options.
+Internally HAR is only an instance of the private class `_HAR`. The `__init__` method instantiates all keys defined in the private attribute `__map__` as classes extending HAREncodable. By default all changes to HAR will be shared globally. If you want to make changes without exposing them like that you have two options.
 
     from harparse import _HAR
     MyHAR = _HAR()
@@ -78,7 +78,7 @@ or
         pass
     MyOtherHAR = _MyOtherHAR()
 
-Simply overwriting the keys of the _HAR instance will change the behaviour of all subsequent usages. An example would be this:
+Simply overwriting the keys of the `_HAR` instance will change the behaviour of all subsequent usages. An example would be this:
 
     class HARpageTimings(HAR.pageTimings):
         def __setitem__(self, key, value):

@@ -15,6 +15,10 @@ or if you don't want the code locally:
 
     pip install -e git://github.com/JustusW/harparser.git#egg=harparser
 
+or
+
+    pip install harparser
+
 Usage
 =====
 If you just want to read and write HARs usage is simple:

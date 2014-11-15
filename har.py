@@ -7,14 +7,24 @@ from zlib import compress, decompress
 
 
 class HAREncodable(MutableMapping):
-    __register__ = []
+    """
+        Base class that allows for recursive HAR structures using HAR as map.
+    """
     __required__ = []
 
     def __init__(self, *args, **kwargs):
+        """
+            Initialize the private dict that is used to actually store the information.
+            Fills it with the content given in args/kwargs then checks against
+            __required__ for missing mandatory fields.
+            If no parameters are given no checks will be done for convenience.
+        """
         self.__dict__ = {}
 
         if len(args) > 0:
             kwargs = args[0]
+        elif len(kwargs) == 0:
+            return
 
         for key, value in kwargs.iteritems():
             self[key] = value
@@ -23,6 +33,13 @@ class HAREncodable(MutableMapping):
             self[key]
 
     def __setitem__(self, key, value):
+        """
+            Exposes self.__dict__.__setitem__ with typecasting.
+
+            Typecast any item to the correct type based on key name and position as
+            implicitly provided by __required__ and __optional__. If a key is used
+            that is not in the specification it will be added without type casting!
+        """
         item_type = self.__required__.get(key, self.__optional__.get(key, None))
         if type(item_type) is type:
             value = item_type(value)
@@ -30,32 +47,56 @@ class HAREncodable(MutableMapping):
             value = [HAR[key](v) for v in value]
         elif type(item_type) is dict:
             value = HAR[key](value)
+        # If it is None or not in the handled cases we would use pass anyway.
 
         return self.__dict__.__setitem__(key, value)
 
     def __getitem__(self, *args, **kwargs):
+        """
+            Directly exposes self.__dict__.__getitem__
+        """
         return self.__dict__.__getitem__(*args, **kwargs)
 
     def __delitem__(self, *args, **kwargs):
+        """
+            Directly exposes self.__dict__.__delitem__
+        """
         return self.__dict__.__delitem__(*args, **kwargs)
 
     def __len__(self):
+        """
+            Directly exposes self.__dict__.__len__
+        """
         return self.__dict__.__len__()
 
     def __iter__(self):
+        """
+            Directly exposes self.__dict__.__iter__
+        """
         return self.__dict__.__iter__()
 
-    def json(self):
+    def json(self, json_string=None):
+        """
+            Convenience method allowing easy dumping to and loading from json.
+        """
+        if json_string is not None:
+            return self.__init__(loads(json_string))
         dump = self
         if self.__class__ is HAR['log']:
             dump = {"log": dump}
         return dumps(dump, default=lambda x: dict(x))
 
     def compress(self):
+        """
+            Convenience method for compressing the json output.
+        """
         return compress(self.json())
 
     def decompress(self, compressed_json_string):
-        return self.__init__(loads(decompress(compressed_json_string)))
+        """
+            Convenience method for decompressing json input.
+        """
+        return self.json(json_string=decompress(compressed_json_string))
 
 
 class _HAR(MutableMapping, object):
@@ -167,27 +208,52 @@ class _HAR(MutableMapping, object):
                                             "comment": str, }, }}
 
     def __init__(self):
+        """
+            Exposes the classes mapped from __map__ extending HAREncodable as a
+            MutableMapping, dict like object.
+        """
         self.__classes__ = dict([(name,
                                   type(name, (HAREncodable, ), self.__map__[name]))
                                  for name in self.__map__])
 
     def __getattr__(self, item):
+        """
+            Exposes __getitem__ keys as attributes.
+        """
         return self[item]
 
     def __getitem__(self, *args, **kwargs):
+        """
+            Directly exposes self.__classes__.__getitem__
+        """
         return self.__classes__.__getitem__(*args, **kwargs)
 
     def __setitem__(self, *args, **kwargs):
+        """
+            Directly exposes self.__classes__.__setitem__
+        """
         return self.__classes__.__setitem__(*args, **kwargs)
 
     def __delitem__(self, *args, **kwargs):
+        """
+            Directly exposes self.__classes__.__delitem__
+        """
         return self.__classes__.__delitem__(*args, **kwargs)
 
     def __iter__(self):
+        """
+            Directly exposes self.__classes__.__iter__
+        """
         return self.__classes__.__iter__()
 
     def __len__(self):
+        """
+            Directly exposes self.__classes__.__len__
+        """
         return self.__classes__.__len__()
 
 
+# Make an instance of _HAR available as HAR. If required one can
+# instantiate another object from _HAR to avoid interference with
+# other peoples code.
 HAR = _HAR()

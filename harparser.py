@@ -84,7 +84,7 @@ class HAREncodable(MutableMapping):
         if json_string is not None:
             return self.__init__(loads(json_string))
         dump = self
-        if self.__class__ is HAR['log']:
+        if isinstance(self, HAR.log):
             dump = {"log": dump}
         return dumps(dump, default=lambda x: dict(x))
 

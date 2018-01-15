@@ -33,6 +33,23 @@ class HAREncodable(MutableMapping):
 
         for key in self.__required__:
             self[key]
+        
+        # Rather clunky exclusives check.
+        try:
+            self.__required_exclusives__
+        except AttributeError:
+            return
+        
+        found = False
+        for key in self.__required_exclusives__:
+            if found and key in self:
+                raise Exception("Mutually exclusive key found. %r in %r (Violates: %r)" % (key, self, self.__required_exclusives__))
+            if not found and key in self:
+                found = True
+        
+        if not found:
+            for key in self.__required_exclusives__:
+                self[key]
 
     def __setitem__(self, key, value):
         """
@@ -42,7 +59,7 @@ class HAREncodable(MutableMapping):
             implicitly provided by __required__ and __optional__. If a key is used
             that is not in the specification it will be added without type casting!
         """
-        item_type = self.__required__.get(key, self.__optional__.get(key, None))
+        item_type = self.__required__.get(key, self.__optional__.get(key, getattr(self, "__required_exclusives__", {}).get(key, None)))
         if type(item_type) is type:
             value = item_type(value)
         elif type(item_type) is list:
@@ -172,9 +189,9 @@ class _HAR(MutableMapping, object):
                "queryString": {"__required__": {"name": str,
                                                 "value": str, },
                                "__optional__": {"comment": str}, },
-               "postData": {"__required__": {"mimeType": str,
-                                             "params": [],
-                                             "text": str, },
+               "postData": {"__required__": {"mimeType": str, },
+                            "__required_exclusives__": {"params": [],
+                                                        "text": str, },
                             "__optional__": {"comment": str}, },
                "params": {"__required__": {"name": str, },
                           "__optional__": {"value": str,

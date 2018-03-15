@@ -2,7 +2,7 @@ from distutils.core import setup
 
 
 setup(name='harparser',
-      version='0.3',
+      version='0.4',
       description='Python HAR Parser Utility',
       author='Justus Wingert',
       author_email='wingert@kw-it.info',

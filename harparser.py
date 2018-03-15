@@ -28,7 +28,7 @@ class HAREncodable(MutableMapping):
         elif len(kwargs) == 0:
             return
 
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self[key] = value
 
         for key in self.__required__:

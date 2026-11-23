@@ -1,7 +1,7 @@
 """
     This module implements HAR as per specification version 1.2.
 """
-from collections import MutableMapping
+from collections.abc import MutableMapping
 from json import dumps, loads
 from zlib import compress, decompress
 

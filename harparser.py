@@ -99,7 +99,11 @@ class HAREncodable(MutableMapping):
             Convenience method allowing easy dumping to and loading from json.
         """
         if json_string is not None:
-            return self.__init__(loads(json_string))
+            data = loads(json_string)
+            # Accept the {"log": {...}} wrapper that json() emits for HAR.log.
+            if isinstance(self, HAR.log) and isinstance(data, dict) and list(data) == ["log"]:
+                data = data["log"]
+            return self.__init__(data)
         dump = self
         if isinstance(self, HAR.log):
             dump = {"log": dump}
@@ -108,14 +112,16 @@ class HAREncodable(MutableMapping):
     def compress(self):
         """
             Convenience method for compressing the json output.
+            Returns zlib compressed, utf-8 encoded json as bytes.
         """
-        return compress(self.json())
+        return compress(self.json().encode("utf-8"))
 
     def decompress(self, compressed_json_string):
         """
-            Convenience method for decompressing json input.
+            Convenience method for decompressing json input
+            (zlib compressed, utf-8 encoded json bytes as returned by compress()).
         """
-        return self.json(json_string=decompress(compressed_json_string))
+        return self.json(json_string=decompress(compressed_json_string).decode("utf-8"))
 
 
 class _HAR(MutableMapping, object):

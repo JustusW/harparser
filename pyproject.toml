@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harparser"
+version = "0.4"
+description = "Python HAR Parser Utility"
+readme = {file = "README", content-type = "text/markdown"}
+authors = [{name = "Justus Wingert", email = "wingert@kw-it.info"}]
+
+[project.urls]
+Homepage = "https://github.com/JustusW/harparser"
+
+[tool.setuptools]
+py-modules = ["harparser"]

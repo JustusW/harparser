@@ -9,11 +9,11 @@ Installation is straight forward:
 
     git clone https://github.com/JustusW/harparser.git
     cd harparser
-    python setup.py install
+    pip install .
 
 or if you don't want the code locally:
 
-    pip install -e git://github.com/JustusW/harparser.git#egg=harparser
+    pip install git+https://github.com/JustusW/harparser.git
 
 or
 
@@ -32,7 +32,7 @@ This call is equivalent to:
     from json import loads
     my_har = HAR.log(loads(<JSON_STRING>))
 
-Every HAR class is implementing collections.MutableMapping thus can be cast to dict easily:
+Every HAR class is implementing collections.abc.MutableMapping thus can be cast to dict easily:
 
     dict(my_har)
     my_har.__dict__

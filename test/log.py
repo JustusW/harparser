@@ -630,3 +630,41 @@ class TestLog(unittest.TestCase):
 
         assert tmp.json().startswith('{"log":')
 
+    def _sample_log(self):
+        return HAR.log({
+            "version": "1.2",
+            "creator": {"name": "MITMPROXY HARExtractor", "version": "0.1", "comment": ""},
+            "pages": [
+                {
+                    "startedDateTime": "2012-08-28T05:14:24.803Z",
+                    "id": "page_1",
+                    "title": "http://www.igvita.com/ äöü",
+                    "pageTimings": {"onContentLoad": 299, "onLoad": 301}
+                }
+            ],
+            "entries": []
+        })
+
+    def test_compress_returns_bytes(self):
+        compressed = self._sample_log().compress()
+
+        assert isinstance(compressed, bytes)
+
+    def test_compress_decompress_round_trip(self):
+        original = self._sample_log()
+
+        restored = HAR.log()
+        restored.decompress(original.compress())
+
+        assert isinstance(restored['pages'][0], HAR.pages)
+        assert restored.json() == original.json()
+        assert restored['pages'][0]['title'] == u"http://www.igvita.com/ äöü"
+
+    def test_decompress_non_log_class(self):
+        original = HAR.creator({"name": "WebInspector", "version": "537.1"})
+
+        restored = HAR.creator()
+        restored.decompress(original.compress())
+
+        assert dict(restored) == dict(original)
+
